@@ -1,0 +1,246 @@
+.fc-scrollgrid-sync-inner > .fc-col-header-cell-cushion,
+.fc-day-mon .fc-daygrid-day-number,
+.fc-day-tue .fc-daygrid-day-number,
+.fc-day-wed .fc-daygrid-day-number,
+.fc-day-thu .fc-daygrid-day-number,
+.fc-day-fri .fc-daygrid-day-number {
+    color: black;
+}
+
+.fc-day-sat .fc-col-header-cell-cushion,
+.fc-day-sat a {
+    color: cornflowerblue;
+}
+
+.fc-day-sun .fc-col-header-cell-cushion,
+.fc-day-sun a {
+    color: deeppink;
+}
+
+/* 캘린더 배경색 변경 */
+.fc-daygrid-day {
+    background-color: #f9f9f9;
+}
+
+/* 일정 배경색 변경 */
+.fc-event {
+    color: white !important;
+    border: none;
+}
+
+/* 헤더 스타일 변경 */
+.fc-toolbar {
+    background-color: #accae8;
+    color: black;
+    padding: 10px;
+}
+
+.fc .fc-button-primary {
+    background-color: transparent;
+    border: none;
+
+    span {
+        font-weight: 500;
+        font-size: 28px;
+    }
+
+    :hover {
+        background-color: transparent;
+    }
+}
+
+.custom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+}
+
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    z-index: 9999;
+}
+
+.custom-modal input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.custom-modal button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.custom-modal button:first-child {
+    background: #007bff;
+    color: white;
+}
+
+.custom-modal button:last-child {
+    background: #ccc;
+}
+
+.original {
+    background-color: #dddddd !important;
+    color: black !important;
+}
+.red {
+    background-color: red !important;
+    color: white !important;
+}
+.blue {
+    background-color: blue !important;
+    color: white !important;
+}
+.green {
+    background-color: green !important;
+    color: white !important;
+}
+.yellow {
+    background-color: yellow !important;
+    color: black !important;
+}
+.orange {
+    background-color: orange !important;
+    color: black !important;
+}
+.purple {
+    background-color: purple !important;
+    color: white !important;
+}
+
+/* 전체 컨테이너 flex 설정 */
+.container {
+    display: flex;
+    height: 100vh;
+    gap: 20px;
+}
+
+/* 캘린더 & 투두 리스트 컨테이너 */
+.calendar-todo-container {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    width: 100%;
+}
+
+/* 캘린더 크기 조정 */
+.calendar-container {
+    flex: 3;
+    min-width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 투두 리스트 크기 조정 */
+.todo-container {
+    flex: 1;
+    min-width: 250px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 투두 리스트 정렬 */
+.todo-container ul {
+    list-style: none;
+    padding-left: 10px;
+}
+
+.todo-container h3 {
+    text-align: center;
+}
+
+.calendar-tooltip {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    white-space: nowrap;
+    pointer-events: none; /* 마우스 이벤트 무시 (툴팁 투명하게) */
+}
+
+/* 이벤트 내용 커스텀 스타일 */
+.fc-custom-event {
+    font-size: 13px;
+    line-height: 1.2;
+    padding: 2px 4px;
+    height: auto;
+    overflow: visible;
+    white-space: nowrap;
+}
+
+.fc-custom-event .fc-event-time {
+    font-weight: bold;
+    color: #222;
+}
+
+.fc-custom-style {
+    margin: 0 !important;
+    padding: 2px 6px !important;
+    border: none !important;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+
+/* 이어지는 일정 간 간격 없애기 */
+.fc-daygrid-event-harness {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 둥근 모서리 클래스 */
+.event-rounded-single {
+    border-radius: 10px;
+}
+
+.event-rounded-start {
+    border-radius: 10px 0 0 10px;
+}
+
+.event-rounded-end {
+    border-radius: 0 10px 10px 0;
+}
+
+.event-no-radius {
+    border-radius: 0;
+}
+
+.fc-event-title-hidden {
+    display: none !important;
+}
+
+.fc-event-title-visible {
+    display: block !important;
+    opacity: 1 !important;
+    color: black; /* 또는 원하는 색상 */
+}
+
+

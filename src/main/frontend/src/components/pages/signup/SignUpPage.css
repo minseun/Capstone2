@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+#container {
+    margin: 0 auto;
+    padding: 20px;
+    min-width: 460px;
+    box-sizing: border-box;
+}
+
+.content {
+    width: 100%;
+    max-width: 460px;
+    margin: 10px auto;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-style {
+    width: 100%;
+    max-width: 430px;
+    padding: 12px 14px;
+    border: 1px solid #dadada;
+    border-radius: 4px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.input-label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.join-button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: #646cff;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.join-button:hover {
+    background-color: #5a56e2;
+}
+
+.join-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+button[type="button"] {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #dadada;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="button"]:hover {
+    background-color: #e0e0e0;
+}
+
+button[type="button"]:disabled {
+    background-color: #d0d0d0;
+    cursor: not-allowed;
+}
