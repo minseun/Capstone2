@@ -7,8 +7,9 @@ import interactionPlugin from "@fullcalendar/interaction"; // 일정 추가 기�
 import Sidebar from "../../layouts/sidebar.jsx"// 사이드바 추가
 import Topbar from "../../layouts/Topbar.jsx";
 import {mapPlannerDTOToEvent} from "./CalendarMapping.jsx";
+import axios from "axios";
+import plannerAPI from "../../../plannerAPI.js";
 
-"CalendarMapping.jsx";
 
 Modal.setAppElement("#root");
 
@@ -31,7 +32,12 @@ Modal.setAppElement("#root");
 // * FullCalendar 라이브러리는 Color 보다는 backgroundColor, borderColor 을 활용하여 색깔을 표현하는 것을 권장하므로 그렇게 설정함.
 // * DB 객체와 프론트에서 사용하는 객체에 차이가 있으므로, 임시로 매핑파일을 만들어 두었음.
 
+//서버로 보낼 데이터 --> 변수 명 일치 확인필요
+
 const CalendarPage = () => {
+
+    console.log(plannerAPI);  // plannerAPI가 정상적으로 로드되었는지 확인
+
     const calendarRef = useRef(null);
     const [events, setEvents] = useState([]);
     const [todayTodos, setTodayTodos] = useState([]);
@@ -58,8 +64,7 @@ const CalendarPage = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [targetDeleteId, setTargetDeleteId] = useState(null);
 
-
-    // 날짜 클릭 시 새로운 일정 추가
+    // 날짜 클릭 시 새로운 일정 추가 (초기값 셋팅)
     const handleDateClick = (arg) => {
         setNewEvent({
             title: "",
@@ -152,7 +157,9 @@ const CalendarPage = () => {
     // 추후 삭제 요망
     const padTime = (n) => n.toString().padStart(2, '0');
 
+//-----------------------DB시작---------------------------
 
+//-----------------------일정 추가 api 시작---------------------
     // 일정 추가
     const addEvent = async () => {
         if (newEvent.title.trim() && newEvent.start) {
@@ -176,6 +183,14 @@ const CalendarPage = () => {
                 groupId: editingEvent?.groupId || Date.now().toString(),// groupId 항상 설정
             };
 
+            const eventData = { //내가 넣은거
+                scheduleTitle: newEvent.title,
+                scheduleStart: formattedStart,
+                scheduleEnd: formattedEnd,
+                scheduleMemo: newEvent.memo,
+                scheduleColor: newEvent.backgroundColor
+            };
+
             const splitEvents = splitEventWithTime(baseEvent);
 
             setEvents(prevEvents => {
@@ -189,36 +204,61 @@ const CalendarPage = () => {
             setModalIsOpen(false);
 
             try {
-                const response = await saveSchedule(baseEvent);
-                console.log("저장 결과:", response);
+                console.log("선택된 일정의 ID:", newEvent.backgroundColor);
+                const createEvent = await axios.post(`/planner/saveSchedule`, eventData);
+                if(createEvent.status===200) {console.log("일정 저장 성공");}
+                console.log("저장 결과:", createEvent);
             } catch (error) {
                 console.error("저장 API 호출 에러:", error);
             }
         }
     };
+//-----------------------일정 추가 api 끝---------------------
 
     // 비동기 문제로 인하여 add 와 update 사이에 위치해야함
     // 위치 수정 시 주의
     // 일단 살려둠 아래 코드에 문제가 없다면 차후 삭제 요망
-    useEffect(() => {
-        updateTodayTodos();
-    }, [events]);
+    // 없으면 투두 안 나옴. 없앨거면 일정 삽입/불러오기 부분에 따로 추가
+     useEffect(() => {
+         updateTodayTodos();
+     }, [events]);
 
+//---------------일정 불러오기 시작----------
     // 원래 투두함수를 호출했는데, 이렇게 설정하면 자동으로 호출되는 것 같으나..
     // 확인이 안 됨 ㅠ-ㅠ
     useEffect(() => {
         // 컴포넌트 마운트 시 전체 스케줄 불러오기
         const fetchSchedules = async () => {
             try {
-                const data = await loadSchedule();
-                const mappedEvents = data.map(mapPlannerDTOToEvent);
-                setEvents(data);
+                const calendar = calendarRef.current.getApi();
+                const response = await axios.get(`/planner/loadSchedule`);
+
+                //api get으로 들고온 데이터를 캘린더에 넣을 수 있는 데이이터로 변환하는 과정
+                //여기에 문제 있음
+                const events = response.data.map(event => ({
+                    id: event.scheduleId,
+                    title: event.scheduleTitle,
+                    start: event.scheduleStart,
+                    end: event.scheduleEnd,
+                    memo: event.scheduleMemo,
+                    color: event.scheduleColor,
+                }));
+                calendar.addEventSource(events); //위의 map을 calendar객체에 추가함
+                setEvents(events);
+
+                // 여기서 각 이벤트 ID 출력 -> 제대로 들고옴. 문제 없음.
+                events.forEach(event => {
+                    console.log("일정 번호:", event.id, event.title);
+                });
+
             } catch (error) {
                 console.error("스케줄 불러오기 에러:", error);
             }
         };
         fetchSchedules();
     }, []);
+//---------------일정 불러오기 끝----------
+
 
     // 같은 날인지 비교
     const isSameDate = (d1, d2) =>
@@ -333,13 +373,19 @@ const CalendarPage = () => {
 
     };
 
+
+//--------------------------일정 수정 api 시작--------------------
+
     // 저장 버튼을 눌러 일정 업데이트
-    const handleUpdate = async (e) => {
+    const handleUpdate = async (info) => {
         e.preventDefault();
         if (!editingEvent) return;
 
         const groupId = editingEvent.groupId || editingEvent.id.split("-")[0];
         const groupEvents = events.filter(event => event.groupId === groupId);
+
+        const calendarId = info.event.id; //디비 아이디 들고오기
+        console.log("선택된 일정의 ID:", calendarId);
 
         if (groupEvents.length === 0) {
             console.warn("해당 groupId의 이벤트들을 찾을 수 없습니다.");
@@ -358,12 +404,20 @@ const CalendarPage = () => {
             id: groupId, // 새 분할 시 기준 ID로 사용
         };
 
+        const eventData = { //디비로 보낼 수정된 데이터 구성
+            scheduleTitle: newEvent.title,
+            scheduleStart: editingEvent.start,
+            scheduleEnd: editingEvent.end,
+            scheduleMemo: editingEvent.memo,
+            scheduleColor: editingEvent.backgroundColor
+        };
+
         // 새로 분할
         const updatedSplitEvents = splitEventWithTime(updatedBaseEvent);
         console.log("📆 새로 분할된 이벤트 목록:", updatedSplitEvents);
         console.log("✅ setEvents 직후 전체 이벤트 수:", updatedSplitEvents.length);
 
-        setEvents(prevEvents => {
+        setEvents(prevEvents => { //언니 꺼임?
             const filtered = prevEvents.filter(ev => ev.groupId !== groupId);
             console.log("🧹 기존 그룹 제거 후:", filtered.length);
             const combined = filtered.concat(updatedSplitEvents);
@@ -376,8 +430,9 @@ const CalendarPage = () => {
         });
 
         try {
-            const response = await updateSchedule(groupId, updatedBaseEvent);
-            console.log("수정 결과:", response);
+            const updateEvent = await axios.put(`/planner/calendarUpdate?id=${calendarId}`, eventData);
+            if(updateEvent.status===200) {console.log("일정 수정 성공");}
+            console.log("수정 결과:", updateEvent);
         } catch (error) {
             console.error("수정 API 호출 에러:", error);
         }
@@ -385,6 +440,8 @@ const CalendarPage = () => {
         setIsEditModalOpen(false);
         setIsListModalOpen(false);
     };
+
+//--------------------------일정 수정 api 끝--------------------
 
 
     // 수정 모달에서 Date 객체를 로컬 타임존 기준으로 변환
@@ -396,9 +453,17 @@ const CalendarPage = () => {
         return localDate.toISOString().slice(0, 16);
     }
 
+
+//--------------------------일정 삭제 api 시작--------------------
+
     // 일정 삭제
-    const handleDelete = async (eventId) => {
+    const handleDelete = async (eventId, info) => {
+
+        const calendarId = info.event.id; //디비에 저장된 id들고오기
+        console.log("선택된 일정의 ID:", calendarId);
+
         const groupId = eventId.split("-")[0];
+
         setEvents(prev => {
             const filtered = prev.filter(ev => ev.groupId !== groupId);
             updateTodayTodos(filtered);
@@ -406,14 +471,17 @@ const CalendarPage = () => {
         });
 
         try {
-            const response = await deleteSchedule(groupId);
-            console.log("삭제 결과:", response);
+            const deleteEvent = await axios.delete(`/planner/deleteSchedule/${calendarId}`);
+            if(deleteEvent.status===200) {console.log("일정 삭제 성공");}
+            console.log("삭제 결과:", deleteEvent);
         } catch (error) {
             console.error("삭제 API 호출 에러:", error);
         }
     };
 
+//--------------------------일정 삭제 api 끝--------------------
 
+//---------------------------DB끝----------------------------
 
     return (
         <div style={{display: "flex", flexDirection: "column"}}>
